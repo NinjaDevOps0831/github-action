@@ -72,8 +72,10 @@ jobs:
         id: approval
 
         with:
-          token: ${{ env.GITHUB_TOKEN }}
-          permissions: read
+          destination_repository: "${{ github.repository }}"
+          source_branch: "${{ github.ref }}"
+          destination_branch: "master"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify approval
         run: |
