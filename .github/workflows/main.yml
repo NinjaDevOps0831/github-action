@@ -6,8 +6,10 @@ on:
       - master
 
 env:
-  DOCKERHUB_USERNAME: "danielsmith0831"
-  DOCKERHUB_TOKEN: "Daniel.Smith.hub.docker.com@0831"
+  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_PASSWORD }}
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  GITHUB_TOKEN:
 
 jobs:
   build-and-push:
@@ -48,9 +50,6 @@ jobs:
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
 
-        env:
-          SLACK_WEBHOOK: "https://hooks.slack.com/services/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"
-
         with:
           status: "Deployment to dev env failed"
           text: "There was a failure during deployment to the dev environment."
@@ -63,27 +62,24 @@ jobs:
       - name: Send Slack notification
         uses: rtCamp/action-slack-notify@v2
 
-        env:
-          SLACK_WEBHOOK: "https://hooks.slack.com/services/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"
-
         with:
           status: "Staging Deployment Approval"
           text: "A deployment to the staging environment requires approval. Please review and respond."
 
-      - name: Wait for approval
-        uses: repo-sync/pull-request@v2
+      # - name: Wait for approval
+      #   uses: repo-sync/pull-request@v2
 
-        id: approval
+      #   id: approval
 
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          permissions: read
+      #   with:
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     permissions: read
 
-      - name: Verify approval
-        run: |
-          if [[ "${{ steps.approval.outputs.approved }}" == "true" ]]; then
-            echo "Approval received. Proceeding with deployment to staging."
-          else
-            echo "Deployment to staging is NOT approved. Exiting the workflow."
-            exit 1
-          fi
+      # - name: Verify approval
+      #   run: |
+      #     if [[ "${{ steps.approval.outputs.approved }}" == "true" ]]; then
+      #       echo "Approval received. Proceeding with deployment to staging."
+      #     else
+      #       echo "Deployment to staging is NOT approved. Exiting the workflow."
+      #       exit 1
+      #     fi
