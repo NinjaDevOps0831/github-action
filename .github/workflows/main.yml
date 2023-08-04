@@ -31,3 +31,26 @@ jobs:
         run: |
           docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
           docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
+
+  deploy-dev:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Deploy to dev env
+        run: |
+          # Add your deployment script here
+
+      - name: Slack notification on failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+
+        env:
+          SLACK_WEBHOOK: "https://hooks.slack.com/services/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"
+
+        with:
+          status: "Deployment to dev env failed"
+          text: "There was a failure during deployment to the dev environment."
