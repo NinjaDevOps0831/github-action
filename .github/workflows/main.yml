@@ -69,3 +69,21 @@ jobs:
         with:
           status: "Staging Deployment Approval"
           text: "A deployment to the staging environment requires approval. Please review and respond."
+
+      - name: Wait for approval
+        uses: repo-sync/pull-request@v2
+
+        id: approval
+
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          permissions: read
+
+      - name: Verify approval
+        run: |
+          if [[ "${{ steps.approval.outputs.approved }}" == "true" ]]; then
+            echo "Approval received. Proceeding with deployment to staging."
+          else
+            echo "Deployment to staging is NOT approved. Exiting the workflow."
+            exit 1
+          fi
