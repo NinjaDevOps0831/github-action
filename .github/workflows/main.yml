@@ -54,3 +54,18 @@ jobs:
         with:
           status: "Deployment to dev env failed"
           text: "There was a failure during deployment to the dev environment."
+
+  staging-approval:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send Slack notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: "https://hooks.slack.com/services/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"
+      with:
+        status: "Staging Deployment Approval"
+        text: "A deployment to staging environment requires approval. Please review and respond."
+
+      
