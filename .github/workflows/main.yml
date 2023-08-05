@@ -73,8 +73,13 @@ jobs:
 
         with:
           destination_repository: "${{ github.repository }}"
-          source_branch: "${{ github.ref }}"
+          source_branch: "staging"
           destination_branch: "master"
+          pr_title: "Staging deployment"
+          pr_allow_empty: true
+          pr_body: |
+            This is a pull request for staging deployment.
+
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify approval
