@@ -104,6 +104,11 @@ jobs:
         run: |
           # Add your staging deployment script here
 
+      - name: Reset staging branch
+        run: |
+          git fetch origin staging
+          git reset --hard origin/staging
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
 
