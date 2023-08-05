@@ -10,6 +10,7 @@ env:
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_PASSWORD }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   GITHUB_TOKEN: ${{ secrets.TOKEN }}
+  MANUAL_APPROVERS: ${{ secrets.MANUAL_APPROVERS }}
 
 jobs:
   build-and-push:
@@ -70,10 +71,11 @@ jobs:
       - name: Wait for approval
         uses: trstringer/manual-approval@v1
 
-        id: manual-approval
         with:
-          github_token: ${{ env.GITHUB_TOKEN }}
-          message: "Approve this workflow for deployment"
+          secret: ${{ env.GITHUB_TOKEN }}
+          approvers: ${{ env.MANUAL_APPROVERS }}
+          issue-title: "Manual approval required"
+          issue-body: "Please review and approve this workflow run."
 
   # deploy-to-staging:
   #   needs: staging-approval
