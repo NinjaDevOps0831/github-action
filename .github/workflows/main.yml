@@ -73,7 +73,7 @@ jobs:
 
         with:
           secret: ${{ env.GITHUB_TOKEN }}
-          approvers: ${{ env.MANUAL_APPROVERS }}
+          approvers: "ninjadev0831"
           issue-title: "Manual approval required"
           issue-body: "Please review and approve this workflow run."
 
