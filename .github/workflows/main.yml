@@ -111,8 +111,8 @@ jobs:
           commit-message: "Merge master into staging"
           title: "Pull Request: Merge master into staging"
           body: "This PR merges changes from the master branch to the staging branch."
-          branch: master
-          base: staging
+          branch: staging
+          base: master
 
       # - name: Send Slack notification on Staging
       #   uses: rtCamp/action-slack-notify@v2
