@@ -104,11 +104,6 @@ jobs:
         run: |
           # Add your staging deployment script here
 
-      - name: Create or Checkout Staging branch
-        run: |
-          git checkout -b staging
-          git push origin staging
-
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
 
