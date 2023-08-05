@@ -13,102 +13,106 @@ env:
   MANUAL_APPROVERS: ${{ secrets.MANUAL_APPROVERS }}
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  # build-and-push:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+  #     - name: Login to DockerHub
+  #       uses: docker/login-action@v1
+  #       with:
+  #         username: ${{ env.DOCKERHUB_USERNAME }}
+  #         password: ${{ env.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: |
-          docker build -t myapp:latest .
+  #     - name: Build Docker image
+  #       run: |
+  #         docker build -t myapp:latest .
 
-      - name: Push Docker image
-        run: |
-          docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
-          docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
+  #     - name: Push Docker image
+  #       run: |
+  #         docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
+  #         docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
 
-  deploy-dev:
-    needs: build-and-push
-    runs-on: ubuntu-latest
+  # deploy-dev:
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Deploy to dev env
-        run: |
-          # Add your deployment script here
+  #     - name: Deploy to dev env
+  #       run: |
+  #         # Add your deployment script here
 
-      - name: Slack notification on failure
-        if: ${{ failure() }}
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          status: "Deployment to dev env failed"
-          text: "There was a failure during deployment to the dev environment."
+  #     - name: Slack notification on failure
+  #       if: ${{ failure() }}
+  #       uses: rtCamp/action-slack-notify@v2
+  #       with:
+  #         status: "Deployment to dev env failed"
+  #         text: "There was a failure during deployment to the dev environment."
 
-  staging-approval:
-    needs: deploy-dev
-    runs-on: ubuntu-latest
+  # staging-approval:
+  #   needs: deploy-dev
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Send Slack notification
-        uses: rtCamp/action-slack-notify@v2
-        with:
-          status: "Staging Deployment Approval"
-          text: "A deployment to the staging environment requires approval. Please review and respond."
+  #     - name: Send Slack notification
+  #       uses: rtCamp/action-slack-notify@v2
+  #       with:
+  #         status: "Staging Deployment Approval"
+  #         text: "A deployment to the staging environment requires approval. Please review and respond."
 
-      - name: Wait for approval
-        uses: trstringer/manual-approval@v1
+  #     - name: Wait for approval
+  #       uses: trstringer/manual-approval@v1
 
-        with:
-          secret: ${{ env.GITHUB_TOKEN }}
-          approvers: ${{ env.MANUAL_APPROVERS }}
-          issue-title: "Manual approval required"
-          issue-body: "Please review and approve this workflow run."
+  #       with:
+  #         secret: ${{ env.GITHUB_TOKEN }}
+  #         approvers: ${{ env.MANUAL_APPROVERS }}
+  #         issue-title: "Manual approval required"
+  #         issue-body: "Please review and approve this workflow run."
 
   deploy-to-staging:
-    needs: staging-approval
+    # needs: staging-approval
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ env.DOCKERHUB_USERNAME }}
+      #     password: ${{ env.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: |
-          docker build -t myapp:latest .
+      # - name: Build Docker image
+      #   run: |
+      #     docker build -t myapp:latest .
 
-      - name: Push Docker image
-        run: |
-          docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
-          docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
+      # - name: Push Docker image
+      #   run: |
+      #     docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
+      #     docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
 
       - name: Deploy to staging env
         run: |
           # Add your staging deployment script here
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
+      - name: Reset staging branch
+        run: |
+          git fetch origin staging
+          git reset --hard origin/staging
 
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ env.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Merge master into staging"
           title: "Pull Request: Merge master into staging"
           body: "This PR merges changes from the master branch to the staging branch."
