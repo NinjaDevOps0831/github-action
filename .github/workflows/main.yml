@@ -72,11 +72,10 @@ jobs:
         uses: repo-sync/pull-request@v2
         with:
           destination_repository: "${{ github.repository }}"
-          source_branch: "staging"
+          source_branch: "${{ github.head_ref }}"
           destination_branch: "master"
-          pr_title: "Staging deployment"
-          pr_body: |
-            This is a pull request for staging deployment.
+          pr_title: "Approval for deployment"
+          pr_body: "Please review and approve this deployment."
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify approval and merge PR
