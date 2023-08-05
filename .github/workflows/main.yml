@@ -104,6 +104,11 @@ jobs:
         run: |
           # Add your staging deployment script here
 
+      - name: Create or Checkout Staging branch
+        run: |
+          git checkout -b staging
+          git push origin staging
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
 
@@ -114,9 +119,9 @@ jobs:
           body: "This PR merges changes from the master branch to the staging branch."
           branch: staging
 
-      - name: Send Slack notification on Staging
-        uses: rtCamp/action-slack-notify@v2
+      # - name: Send Slack notification on Staging
+      #   uses: rtCamp/action-slack-notify@v2
 
-        with:
-          status: "Deployment to Staging"
-          text: "Deployment to Staging has been completed!"
+      #   with:
+      #     status: "Deployment to Staging"
+      #     text: "Deployment to Staging has been completed!"
