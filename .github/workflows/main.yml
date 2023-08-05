@@ -9,7 +9,7 @@ env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_PASSWORD }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
 jobs:
   build-and-push:
@@ -68,34 +68,30 @@ jobs:
           text: "A deployment to the staging environment requires approval. Please review and respond."
 
       - name: Wait for approval
-        id: approval
-        uses: repo-sync/pull-request@v2
-        with:
-          destination_repository: "${{ github.repository }}"
-          source_branch: "${{ github.head_ref }}"
-          destination_branch: "master"
-          pr_title: "Approval for deployment"
-          pr_body: "Please review and approve this deployment."
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Verify approval and merge PR
+        id: wait-for-approval
         run: |
-          if [[ "${{ steps.approval.outputs.approved }}" == "true" ]]; then
-            echo "Approval received. Proceeding with deployment to staging."
-            gh pr merge -R "${{ steps.approval.outputs.pull_request_number }}"
+          payload=$(curl -s -X GET \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: Bearer ${{ env.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/approvals")
+          echo "$payload" > output.json
+          approvals=$(jq -r '.total_count' output.json)
+          if [ "$approvals" -gt "0" ]; then
+            echo "Workflow approved!"
+            exit 0
           else
-            echo "Deployment to staging is NOT approved. Exiting the workflow."
+            echo "Waiting for approval..."
             exit 1
           fi
 
-  deploy-to-staging:
-    needs: staging-approval
-    runs-on: ubuntu-latest
+  # deploy-to-staging:
+  #   needs: staging-approval
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v2
 
-      - name: Deploy to staging env
-        run: |
-          # Add your staging deployment script here
+  #     - name: Deploy to staging env
+  #       run: |
+  #         # Add your staging deployment script here
