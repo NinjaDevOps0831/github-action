@@ -113,6 +113,7 @@ jobs:
           body: "This PR merges changes from the master branch to the staging branch."
           branch: staging
           base: master
+          delete-branch: true
 
       # - name: Send Slack notification on Staging
       #   uses: rtCamp/action-slack-notify@v2
