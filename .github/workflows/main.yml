@@ -85,29 +85,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ env.DOCKERHUB_USERNAME }}
+      #     password: ${{ env.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        run: |
-          docker build -t myapp:latest .
+      # - name: Build Docker image
+      #   run: |
+      #     docker build -t myapp:latest .
 
-      - name: Push Docker image
-        run: |
-          docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
-          docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
+      # - name: Push Docker image
+      #   run: |
+      #     docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
+      #     docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
 
       - name: Deploy to staging env
         run: |
           # Add your staging deployment script here
-
-      - name: Reset staging branch
-        run: |
-          git fetch origin staging
-          git reset --hard origin/staging
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
