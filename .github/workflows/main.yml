@@ -104,19 +104,15 @@ jobs:
         run: |
           # Add your staging deployment script here
 
-      - name: Reset staging branch
-        run: |
-          git fetch origin staging
-          git reset --hard origin/staging
-
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ env.GITHUB_TOKEN }}
           commit-message: "Merge master into staging"
           title: "Pull Request: Merge master into staging"
           body: "This PR merges changes from the master branch to the staging branch."
-          branch: staging
+          branch: master
+          base: staging
 
       # - name: Send Slack notification on Staging
       #   uses: rtCamp/action-slack-notify@v2
