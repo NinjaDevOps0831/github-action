@@ -100,18 +100,19 @@ jobs:
       #     docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
       #     docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
 
-      - name: Fetch all branches
-        run: git fetch --prune --unshallow
+      - name: extract git commit data
+        uses: rlespinasse/git-commit-data-action@v1.x
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v3
+
         with:
           token: ${{ env.GITHUB_TOKEN }}
           commit-message: "Merge master into staging"
           title: "Pull Request: Merge master into staging"
           body: "This PR merges changes from the master branch to the staging branch."
-          branch: master
-          base: staging
+          branch: staging
+          base: master
 
       # - name: Send Slack notification on Staging
       #   uses: rtCamp/action-slack-notify@v2
