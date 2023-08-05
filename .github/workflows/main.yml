@@ -73,18 +73,18 @@ jobs:
 
         with:
           secret: ${{ env.GITHUB_TOKEN }}
-          approvers: "ninjadev0831"
+          approvers: ${{ env.MANUAL_APPROVERS }}
           issue-title: "Manual approval required"
           issue-body: "Please review and approve this workflow run."
 
-  # deploy-to-staging:
-  #   needs: staging-approval
-  #   runs-on: ubuntu-latest
+  deploy-to-staging:
+    needs: staging-approval
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-  #     - name: Deploy to staging env
-  #       run: |
-  #         # Add your staging deployment script here
+      - name: Deploy to staging env
+        run: |
+          # Add your staging deployment script here
