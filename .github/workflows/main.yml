@@ -35,52 +35,57 @@ jobs:
   #     #     docker tag myapp:DEV ${{ env.DOCKERHUB_USERNAME }}/myapp:DEV
   #     #     docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:DEV
 
-  deploy-dev:
-    # needs: build-and-push
+  # deploy-dev:
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     # - name: Deploy to dev env
+  #     #   run: |
+  #     #     # Add your deployment script here
+
+  #     - name: Slack notification on failure
+  #       if: ${{ failure() }}
+  #       uses: rtCamp/action-slack-notify@v2
+  #       env:
+  #         SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
+  #         SLACK_CHANNEL: general
+  #         SLACK_COLOR: danger
+  #         SLACK_ICON: https://github.com/rtCamp.png?size=48
+  #         SLACK_MESSAGE: There was a failure during deployment to the dev environment.
+  #         SLACK_TITLE: Deployment to dev env failed
+  #         SLACK_USERNAME: rtBot
+
+  staging-approval:
+    # needs: deploy-dev
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # - name: Deploy to dev env
-      #   run: |
-      #     # Add your deployment script here
-
-      - name: Slack notification on failure
-        if: ${{ failure() }}
+      - name: Send Slack notification
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
           SLACK_CHANNEL: general
-          SLACK_COLOR: danger
+          SLACK_COLOR: good
           SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_MESSAGE: There was a failure during deployment to the dev environment.
-          SLACK_TITLE: Deployment to dev env failed
+          SLACK_MESSAGE: A deployment to the staging environment requires approval. Please review and respond.
+          SLACK_TITLE: Staging Deployment Approval
           SLACK_USERNAME: rtBot
 
-  # staging-approval:
-  #   needs: deploy-dev
-  #   runs-on: ubuntu-latest
+      # - name: Wait for approval
+      #   uses: trstringer/manual-approval@v1
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
-
-  #     - name: Send Slack notification
-  #       uses: rtCamp/action-slack-notify@v2
-  #       with:
-  #         status: "Staging Deployment Approval"
-  #         text: "A deployment to the staging environment requires approval. Please review and respond."
-
-  #     - name: Wait for approval
-  #       uses: trstringer/manual-approval@v1
-
-  #       with:
-  #         secret: ${{ env.GITHUB_TOKEN }}
-  #         approvers: ${{ env.MANUAL_APPROVERS }}
-  #         issue-title: "Manual approval required"
-  #         issue-body: "Please review and approve this workflow run."
+      #   with:
+      #     secret: ${{ env.GITHUB_TOKEN }}
+      #     approvers: ${{ env.MANUAL_APPROVERS }}
+      #     issue-title: "Manual approval required"
+      #     issue-body: "Please review and approve this workflow run."
 
   # deploy-to-staging:
   #   needs: staging-approval
