@@ -123,8 +123,8 @@ jobs:
           token: ${{ env.GITHUB_TOKEN }}
           title: "Merge master into staging"
           commit-message: "Merge commit message"
-          branch: baster
-          base: master
+          branch: master
+          base: staging
 
       # - name: Slack notification on Success
       #   if: ${{ success() }}
