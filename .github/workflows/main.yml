@@ -36,7 +36,7 @@ jobs:
   #     #     docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:DEV
 
   deploy-dev:
-    needs: build-and-push
+    # needs: build-and-push
     runs-on: ubuntu-latest
 
     steps:
