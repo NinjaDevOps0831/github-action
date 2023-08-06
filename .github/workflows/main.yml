@@ -11,11 +11,7 @@ env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   GITHUB_TOKEN: ${{ secrets.TOKEN }}
   MANUAL_APPROVERS: ${{ secrets.MANUAL_APPROVERS }}
-  # EMAIL_SERVER_ADDRESS: ${{ secrets.EMAIL_SERVER_ADDRESS }}
-  # EMAIL_SERVER_PORT: ${{ secrets.EMAIL_SERVER_PORT }}
-  # EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
-  # EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-  # RECEIVER_EMAILS: ${{ secrets.RECEIVER_EMAILS }}
+  EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
 
 jobs:
   # build-and-push:
@@ -64,97 +60,95 @@ jobs:
   #         SLACK_TITLE: Deployment to dev env failed
   #         SLACK_USERNAME: rtBot
 
-  staging-approval:
-    # needs: deploy-dev
+  # staging-approval:
+  #   needs: deploy-dev
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     - name: Send Slack notification
+  #       uses: rtCamp/action-slack-notify@v2
+  #       env:
+  #         SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
+  #         SLACK_CHANNEL: general
+  #         SLACK_COLOR: good
+  #         SLACK_ICON: https://github.com/rtCamp.png?size=48
+  #         SLACK_MESSAGE: A deployment to the staging environment requires approval. Please review and respond.
+  #         SLACK_TITLE: Staging Deployment Approval
+  #         SLACK_USERNAME: rtBot
+
+  #     - name: Wait for approval
+  #       uses: trstringer/manual-approval@v1
+  #       with:
+  #         secret: ${{ env.GITHUB_TOKEN }}
+  #         approvers: ${{ env.MANUAL_APPROVERS }}
+  #         issue-title: "Manual approval required"
+  #         issue-body: "Please review and approve this workflow run."
+
+  #     - name: Approve by mail
+  #       uses: cinotify/github-action@main
+  #       with:
+  #         to: ${{ env.EMAIL_ADDRESS }}
+  #         subject: "Manual approval required"
+  #         body: "Please review and approve this workflow run."
+
+  deploy-to-staging:
+    # needs: staging-approval
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Send Slack notification
+      # - name: Login to DockerHub
+      #   uses: docker/login-action@v1
+      #   with:
+      #     username: ${{ env.DOCKERHUB_USERNAME }}
+      #     password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t myapp:STA .
+
+      # - name: Push Docker image
+      #   run: |
+      #     docker tag myapp:STA ${{ env.DOCKERHUB_USERNAME }}/myapp:STA
+      #     docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:STA
+
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@v3
+
+      #   with:
+      #     token: ${{ env.GITHUB_TOKEN }}
+      #     branch: staging
+      #     title: "Merge master into staging"
+      #     commit-message: "Merge commit message"
+
+      - name: Slack notification on Success
+        if: ${{ success() }}
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
           SLACK_CHANNEL: general
           SLACK_COLOR: good
           SLACK_ICON: https://github.com/rtCamp.png?size=48
-          SLACK_MESSAGE: A deployment to the staging environment requires approval. Please review and respond.
-          SLACK_TITLE: Staging Deployment Approval
+          SLACK_MESSAGE: There was a success during deployment to the staging environment.
+          SLACK_TITLE: Deployment to staging env success
           SLACK_USERNAME: rtBot
 
-      - name: Approve by mail
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: dalejandrole@gmail.com
-          password: Daniel.Smith.mail.google.com@0831
-          subject: "GitHub Action Notification"
-          body: "Hello from GitHub Actions!"
-          from: dalejandrole@gmail.com
-          to: pkhong0218@gmail.com
-
-      - name: Wait for approval
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ env.GITHUB_TOKEN }}
-          approvers: ${{ env.MANUAL_APPROVERS }}
-          issue-title: "Manual approval required"
-          issue-body: "Please review and approve this workflow run."
-
-  # deploy-to-staging:
-  #   needs: staging-approval
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
-
-  #     - name: Login to DockerHub
-  #       uses: docker/login-action@v1
-  #       with:
-  #         username: ${{ env.DOCKERHUB_USERNAME }}
-  #         password: ${{ env.DOCKERHUB_TOKEN }}
-
-  #     - name: Build Docker image
-  #       run: |
-  #         docker build -t myapp:latest .
-
-  #     - name: Push Docker image
-  #       run: |
-  #         docker tag myapp:latest ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
-  #         docker push ${{ env.DOCKERHUB_USERNAME }}/myapp:latest
-
-  #     - name: Create Pull Request
-  #       uses: peter-evans/create-pull-request@v3
-
-  #       with:
-  #         token: ${{ env.GITHUB_TOKEN }}
-  #         branch: staging
-  #         title: "Merge master into staging"
-  #         commit-message: "Merge commit message"
-
-  #     - name: Send Slack notification on Staging
-  #       uses: rtCamp/action-slack-notify@v2
-
-  #       with:
-  #         status: "Deployment to Staging"
-  #         text: "Deployment to Staging has been completed!"
-
-  #     - name: Slack notification on Success
-  #       if: ${{ success() }}
-  #       uses: rtCamp/action-slack-notify@v2
-  #       with:
-  #         status: "Deployment to staging env success"
-  #         text: "There was a success during deployment to the staging environment."
-
-  #     - name: Slack notification on Failure
-  #       if: ${{ failure() }}
-  #       uses: rtCamp/action-slack-notify@v2
-  #       with:
-  #         status: "Deployment to staging env failed"
-  #         text: "There was a failure during deployment to the staging environment."
+      - name: Slack notification on Failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
+          SLACK_CHANNEL: general
+          SLACK_COLOR: danger
+          SLACK_ICON: https://github.com/rtCamp.png?size=48
+          SLACK_MESSAGE: There was a failure during deployment to the staging environment.
+          SLACK_TITLE: Deployment to staging env failed
+          SLACK_USERNAME: rtBot
 
   # production-approval:
   #   needs: deploy-to-staging
