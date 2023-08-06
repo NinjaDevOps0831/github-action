@@ -11,6 +11,7 @@ env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   GITHUB_TOKEN: ${{ secrets.TOKEN }}
   MANUAL_APPROVERS: ${{ secrets.MANUAL_APPROVERS }}
+  EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
 
 jobs:
   # build-and-push:
@@ -80,14 +81,18 @@ jobs:
 
       - name: Wait for approval
         uses: trstringer/manual-approval@v1
-
         with:
           secret: ${{ env.GITHUB_TOKEN }}
           approvers: ${{ env.MANUAL_APPROVERS }}
-          minimum-approvals: 1
           issue-title: "Manual approval required"
           issue-body: "Please review and approve this workflow run."
-          exclude-workflow-initiator-as-approver: false
+
+      - name: Approve by mail
+        uses: cinotify/github-action@main
+        with:
+          to: ${{ env.EMAIL_ADDRESS }}
+          subject: "Manual approval required"
+          body: "Please review and approve this workflow run."
 
   # deploy-to-staging:
   #   needs: staging-approval
