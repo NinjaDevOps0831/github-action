@@ -65,7 +65,7 @@ jobs:
   #         SLACK_USERNAME: rtBot
 
   staging-approval:
-    needs: deploy-dev
+    # needs: deploy-dev
     runs-on: ubuntu-latest
 
     steps:
