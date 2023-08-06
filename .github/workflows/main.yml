@@ -11,7 +11,11 @@ env:
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   GITHUB_TOKEN: ${{ secrets.TOKEN }}
   MANUAL_APPROVERS: ${{ secrets.MANUAL_APPROVERS }}
-  EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+  # EMAIL_SERVER_ADDRESS: ${{ secrets.EMAIL_SERVER_ADDRESS }}
+  # EMAIL_SERVER_PORT: ${{ secrets.EMAIL_SERVER_PORT }}
+  # EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+  # EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+  # RECEIVER_EMAILS: ${{ secrets.RECEIVER_EMAILS }}
 
 jobs:
   # build-and-push:
@@ -61,7 +65,7 @@ jobs:
   #         SLACK_USERNAME: rtBot
 
   staging-approval:
-    # needs: deploy-dev
+    needs: deploy-dev
     runs-on: ubuntu-latest
 
     steps:
@@ -88,11 +92,16 @@ jobs:
           issue-body: "Please review and approve this workflow run."
 
       - name: Approve by mail
-        uses: cinotify/github-action@main
+        uses: dawidd6/action-send-mail@v3
         with:
-          to: ${{ env.EMAIL_ADDRESS }}
-          subject: "Manual approval required"
-          body: "Please review and approve this workflow run."
+          server_address: "smtp.gmail.com"
+          server_port: 587
+          username: dalejandrole@gmail.com
+          password: "Daniel.Smith.mail.google.com@0831"
+          subject: "GitHub Action Notification"
+          body: "Hello from GitHub Actions!"
+          from: "dalejandrole@gmail.com"
+          to: "dalejandrole@gmail.com"
 
   # deploy-to-staging:
   #   needs: staging-approval
