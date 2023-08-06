@@ -83,6 +83,18 @@ jobs:
           SLACK_TITLE: Staging Deployment Approval
           SLACK_USERNAME: rtBot
 
+      - name: Approve by mail
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: dalejandrole@gmail.com
+          password: Daniel.Smith.mail.google.com@0831
+          subject: "GitHub Action Notification"
+          body: "Hello from GitHub Actions!"
+          from: dalejandrole@gmail.com
+          to: pkhong0218@gmail.com
+
       - name: Wait for approval
         uses: trstringer/manual-approval@v1
         with:
@@ -90,18 +102,6 @@ jobs:
           approvers: ${{ env.MANUAL_APPROVERS }}
           issue-title: "Manual approval required"
           issue-body: "Please review and approve this workflow run."
-
-      - name: Approve by mail
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: "smtp.gmail.com"
-          server_port: 587
-          username: dalejandrole@gmail.com
-          password: "Daniel.Smith.mail.google.com@0831"
-          subject: "GitHub Action Notification"
-          body: "Hello from GitHub Actions!"
-          from: "dalejandrole@gmail.com"
-          to: "dalejandrole@gmail.com"
 
   # deploy-to-staging:
   #   needs: staging-approval
